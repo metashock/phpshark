@@ -1,4 +1,5 @@
 <?php
+
 class Frame_Ethernet
 {
 
@@ -10,19 +11,19 @@ class Frame_Ethernet
 
     protected $type;
 
-    protected $raw;
+    protected $payload;
 
 
     public function __construct(
-        $sourceaddr,
         $destaddr,
+        $sourceaddr,
         $ethertype,
-        $raw = ''
+        $payload = ''
     ) {
-        $this->sourceaddr = $sourceaddr;
         $this->destaddr = $destaddr;
+        $this->sourceaddr = $sourceaddr;
         $this->ethertype = $ethertype;
-        $this->raw = $raw;
+        $this->payload = $payload;
     }
 
 
@@ -46,9 +47,9 @@ class Frame_Ethernet
 
         // @TODO check if this a vlan frame
 
-        // try to decode payload
+		$payload = substr($raw, 14);
 
-        return new Frame_Ethernet($sourceaddr, $destaddr, $ethertype, $raw);
+        return new Frame_Ethernet($destaddr, $sourceaddr, $ethertype, $payload);
     }
 
 
@@ -72,6 +73,32 @@ class Frame_Ethernet
     public function destaddr(){
         return $this->destaddr;
     }
+
+	public function ethertype() {
+		return $this->ethertype;
+	}
+
+	public function payload() {
+		return $this->payload;
+	}
+
+
+	public function bytes() {
+		$bytes = '';
+		foreach(explode(':', $this->destaddr) as $hex) {
+			$bytes .= chr(hexdec($hex));			
+		}
+
+		foreach(explode(':', $this->sourceaddr) as $hex) {
+			$bytes .= chr(hexdec($hex));			
+		}
+
+		$bytes .= pack('n', $this->ethertype);
+		$bytes .= $this->payload;
+
+		hexdump($bytes);
+		return $bytes;
+	}
 
 
     public function __toString() {

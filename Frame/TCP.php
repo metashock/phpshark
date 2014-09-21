@@ -15,7 +15,7 @@ class Frame_TCP extends Frame
             'Nacknum'
         )), $data);
         $frame = new Frame_TCP($unpacked);
-        hexdump($data);
+        //hexdump($data);
         return $frame;
     }
 
